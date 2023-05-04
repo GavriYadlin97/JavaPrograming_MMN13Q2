@@ -15,6 +15,33 @@ public class Order {
     }
 
     public boolean removeFromOrder(Item item, int quantity) {
-        return this.order.remove(new OrderedItem(item, quantity));
+        OrderedItem toRemove;
+        for (OrderedItem checker : order) {
+            if (checker.compareTo(new OrderedItem(item, quantity)) == 0) {
+                this.order.remove(checker);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int getTotal() {
+        int total = 0;
+        for (OrderedItem item : order) {
+            total += item.getPrice() * item.getQuantity();
+        }
+        return total;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder newStr = new StringBuilder();
+        newStr.append("             Item             | Price | Quantity | Total\n");
+        newStr.append("-------------------------------------------------\n");
+        for (OrderedItem item : order) {
+            newStr.append(String.format("%-40.30s|%5d$|%5d|%5d$\n", item.getDescription(), item.getPrice(), item.getQuantity(), item.getQuantity() * item.getPrice()));
+        }
+        newStr.append("Total:\t\t\t\t\t\t\t" + this.getTotal() + "$");
+        return newStr.toString();
     }
 }

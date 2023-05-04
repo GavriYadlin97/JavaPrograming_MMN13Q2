@@ -60,13 +60,13 @@ public class HelloController {
 
     @FXML
     void orderBtnClicked(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Please confirm your order", ButtonType.OK, ButtonType.APPLY, new ButtonType("Hi"));
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Please confirm your order:\n" + order.toString(), new ButtonType("Confirm Order"), new ButtonType("Update Order"), new ButtonType("Cancel"));
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == (new ButtonType("hi"))) {
 
         } else if (true) {
             //TODO reset choices
-            order = new Order();
+            //order = new Order();
         }
         //if NO_OPTION aka update, do nothing
     }
@@ -111,10 +111,16 @@ public class HelloController {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableVal, Boolean oldVal, Boolean newVal) {
                 if (!newVal) {
+                    try {
+                        order.removeFromOrder(item, comBox.getValue());
+                    }
+                    catch (NullPointerException ignored){}
                     comBox.setValue(null);
                     totalPrice.setText("0$");
-                } else if (comBox.getValue() != null)
+                } else if (comBox.getValue() != null) {
                     totalPrice.setText(item.getPrice() * comBox.getValue() + "$");
+                    order.addToOrder(item, comBox.getValue());
+                }
             }
         });
     }
@@ -123,8 +129,15 @@ public class HelloController {
         comBox.valueProperty().addListener(new ChangeListener<Integer>() {
             @Override
             public void changed(ObservableValue<? extends Integer> observableVal, Integer oldVal, Integer newVal) {
-                if (chkBox.isSelected())
+                if (chkBox.isSelected()) {
                     totalPrice.setText(item.getPrice() * newVal + "$");
+                    try {
+                        order.removeFromOrder(item, oldVal);
+                    } catch (NullPointerException ignored) {
+                    } finally {
+                        order.addToOrder(item, newVal);
+                    }
+                }
             }
         });
     }
