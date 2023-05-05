@@ -36,12 +36,12 @@ public class Order {
     @Override
     public String toString() {
         StringBuilder newStr = new StringBuilder();
-        newStr.append("             Item             | Price | Quantity | Total\n");
-        newStr.append("-------------------------------------------------\n");
+        newStr.append("                  Item                  | Price| Quantity| Total\n");
+        newStr.append("----------------------------------------------------------------\n");
         for (OrderedItem item : order) {
-            newStr.append(String.format("%-40.30s|%5d$|%5d|%5d$\n", item.getDescription(), item.getPrice(), item.getQuantity(), item.getQuantity() * item.getPrice()));
+            newStr.append(String.format("%-40s|%5d$|%9d|%5d$\n", item.getDescription(), item.getPrice(), item.getQuantity(), item.getQuantity() * item.getPrice()));
         }
-        newStr.append("Total:\t\t\t\t\t\t\t" + this.getTotal() + "$");
+        newStr.append(String.format("Total:%57d$",this.getTotal()));
         return newStr.toString();
     }
 }

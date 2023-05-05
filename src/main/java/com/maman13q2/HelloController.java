@@ -14,6 +14,7 @@ import javafx.scene.layout.GridPane;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Formatter;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Scanner;
@@ -60,21 +61,66 @@ public class HelloController {
 
     @FXML
     void orderBtnClicked(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Please confirm your order:\n" + order.toString(), new ButtonType("Confirm Order"), new ButtonType("Update Order"), new ButtonType("Cancel"));
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == (new ButtonType("hi"))) {
+        ButtonType confirmOrder = new ButtonType("Confirm Order");
+        ButtonType updateOrder = new ButtonType("Update Order");
+        ButtonType cancelOrder = new ButtonType("Cancel Order");
 
-        } else if (true) {
-            //TODO reset choices
-            //order = new Order();
-        }
-        //if NO_OPTION aka update, do nothing
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, order.toString(), confirmOrder, updateOrder, cancelOrder);
+        alert.setHeaderText("Please confirm Order.");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent())  //if UpdateOrder, do nothing: let the user continue with the order as is
+            if (result.get() == confirmOrder) {
+                confirmOrder();
+                cancelOrder();
+            } else if (result.get() == cancelOrder)
+                cancelOrder();
     }
 
     public void initialize() {
+        order = new Order();
         Menu menu = readMenuFromFile();
         loadData(menu);
+    }
+
+    private void cancelOrder() {
         order = new Order();
+        appetizerPane.getContent().setDisable(true);
+        mainCoursePane.getContent().setDisable(true);
+        dessertPane.getContent().setDisable(true);
+        drinksPane.getContent().setDisable(true);
+    }
+
+    private void confirmOrder() {
+        TextInputDialog inputDialog = new TextInputDialog();
+
+        inputDialog.getDialogPane().lookupButton(ButtonType.CANCEL).setDisable(true);
+        inputDialog.setContentText("Please enter your name");
+        inputDialog.showAndWait();
+
+        StringBuilder str = new StringBuilder(inputDialog.getEditor().getText());
+
+        inputDialog.setContentText("Please enter your ID");
+        inputDialog.getEditor().clear();
+        inputDialog.showAndWait();
+
+        str.append(inputDialog.getEditor().getText());
+
+        createFile(str.toString());
+    }
+
+    private void createFile (String fileName) {
+        try {
+            Formatter output = new Formatter(fileName + ".txt");
+            try {
+                output.format(order.toString());
+            } catch (NoSuchElementException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't write to file" + new File(fileName + ".txt").getAbsolutePath(), ButtonType.OK);
+                alert.showAndWait();
+            }
+            output.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void loadData(Menu menu) {
@@ -98,6 +144,7 @@ public class HelloController {
         //Listeners
         setListenerChkBox(item, chkBox, comBox, totalPrice);
         setListenerComBox(item, chkBox, comBox, totalPrice);
+        setListenerGridPane(gridPane, chkBox, comBox); //for clearing when canceling an order
     }
 
     private void setVisual(Node... nodes) {
@@ -113,8 +160,8 @@ public class HelloController {
                 if (!newVal) {
                     try {
                         order.removeFromOrder(item, comBox.getValue());
+                    } catch (NullPointerException ignored) {
                     }
-                    catch (NullPointerException ignored){}
                     comBox.setValue(null);
                     totalPrice.setText("0$");
                 } else if (comBox.getValue() != null) {
@@ -142,8 +189,19 @@ public class HelloController {
         });
     }
 
+    private void setListenerGridPane(GridPane gridPane, CheckBoxWItem chkBox, ComboBoxWItem comBox) {
+        gridPane.disableProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                chkBox.setSelected(false);
+                comBox.setValue(null);
+                gridPane.setDisable(false);
+            }
+        });
+    }
+
     private Menu readMenuFromFile() {
-        Scanner input = openFile();
+        Scanner input = readFile();
         Menu menu = new Menu();
         while (input.hasNextLine()) {
             String description = "", typeStr = "", price = "0";
@@ -179,7 +237,7 @@ public class HelloController {
         }
     }
 
-    private Scanner openFile() {
+    private Scanner readFile() {
         try {
             return new Scanner(new File("menu.txt"));
         } catch (FileNotFoundException e) {

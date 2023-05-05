@@ -1,6 +1,54 @@
-text
+Focaccia La Famila
 appetizer
-123
-long text
+11
+Coca-Cola
+Drink
+3
+Sprite
+drink
+3
+Orange-Fanta
+DrInK
+3
+Water
+DRINK
+1
+Cheesecake
+Dessert
+7
+Tiramisu
+DeSsErt
+9
+Beer
+drink
+5
+Gnocchi Alla crema
+main course
+17
+Jerusalem Artichoke Ravioli
+maiN Course
+16
+Ice Cream
+dessert
+5
+Risotto Fungi
+main course
+16
+Short Ribs Papardella
+main course
+21
+Roasted Salmon Filet
+main course
+23
+Polo Schnitzel
+main course
+15
+Beef Filet Carpaccio
 appetizer
-2
+12
+Soup of the day
+appetizer
+9
+Liver Pate
+appetizer
+11
